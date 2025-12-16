@@ -1,18 +1,61 @@
-# Hardware-Accelerated A* Path Planning on Nexys A7-100T (Artix-7)
+# FPGA vs Python A* Pathfinding Accelerator
 
-This project implements a fully synthesizable **A\*** path planner for a 2D grid in Verilog (Vivado 2024.2) on the **Digilent Nexys A7-100T (XC7A100T-1CSG324C)**, and is **explicitly designed to be compared against a Python A\*** baseline under identical conditions. The repository includes a minimal Python A* reference and a clear methodology to run an apples-to-apples performance evaluation (latency, nodes expanded, resource usage, and timing).
+## Project Overview
+This project implements and benchmarks a hardware-accelerated A* pathfinding engine on a Xilinx Artix-7 FPGA.
+The design supports 8-connected omnidirectional movement, uses the Octile Distance heuristic, and is validated against a Python software reference model.
 
----
+The system includes:
+- Verilog Hardware Accelerator (optimized for 16×16 grids)
+- Python Reference Implementation for correctness verification
+- Python Visualizer for demonstrating algorithm behavior
+- Seven Comprehensive Test Mazes evaluating correctness, efficiency, and performance
+All hardware and software implementations match exactly in nodes expanded, path quality, and optimality.
 
-## ✨ Highlights
+## Key Features
+- 8-connected motion (N, S, E, W, NE, NW, SE, SW)
+- Optimized Octile heuristic (admissible & consistent)
+- 10–100× speedup vs. Python implementation
+- FPGA resource-efficient (4.5% LUT usage on Artix-7)
+- Verified across 7 test scenarios
+- Real-time visualization via Python interface
 
-- **Hardware A\*** in Verilog-2001 with **binary min-heap** open set and **Manhattan** heuristic (4-connected N/E/S/W, unit cost).
-- **Direct Python A\* comparison baked in**: reference script included; evaluation steps and result table scaffold provided.
-- Configurable grid (default **32×32**), heap capacity, and data widths for architectural exploration.
-- Built-in **performance counters**—`cycles` (latency) and `expanded` (nodes popped)—for rigorous HW/SW analysis.
-- Behavioral testbench prints ASCII grid and recovered path for quick functional validation.
-- Clean **XDC** for Nexys A7-100T (100 MHz clock, reset, LED). Simple top toggles **LED0 = done** for an instant board demo.
+## Repository Structure
+  1. Code
+      1. Python
+         - Contains the software reference implementation of A*.
+         Used for verifying hardware correctness and generating expected outputs.
+      2. Verilog
+         - Hardware implementation of the accelerator.
+         Includes:
+         1. astar_top - top-level module and logic components
+         2. astar_tb - testbench used for simulation and verification
+  2. Documentation
+     - Contains IEEE formatted paper and rough draft powerpoint presentation
+  3. Vizualizer
+     - Python visualizer for interacting with A* pathfinding.
+     - Supports grid editing, animated search visualization, and comparison modes.
 
+## Test Cases
+The system includes seven curated test mazes designed to verify path correctness, obstacle handling, diagonal traversal, and corner cases:
+1. Simple Diagonal — Empty 16×16 grid, direct diagonal path from (0,0) to (7,7).
+2. Spiral Maze — Nested walls forcing deeper search expansion.
+3. Random Obstacles — 30% density randomized layout.
+4. Snake Pattern — Alternating barriers requiring precise navigation.
+5. Rooms & Corridors — Structured maze with segmented rooms and openings.
+6. Diagonal Corridor — Maze intentionally optimized for 8-directional movement.
+7. No Path — Fully blocked scenario testing failure handling and termination.
+Each test case is validated across Python and hardware, with identical node-expansion behavior.
 
-
-
+## Hardware Specifications
+- Target Device: Xilinx Artix-7
+- Grid Size: 16×16 (configurable)
+- Motion: 8-connected (N, S, E, W, NE, NW, SE, SW)
+- Move Costs: 10 (straight), 14 (diagonal)
+- Heuristic: Octile Distance (scaled to match cost model)
+- Resource Utilization:
+  - 2,847 LUTs (4.5%)  
+  - 1,923 FFs (1.5%)
+  - 3 BRAM blocks
+- Latency: 3–85 microseconds depending on test case
+- Cycles per node: approx. 3–9 cycles
+     
